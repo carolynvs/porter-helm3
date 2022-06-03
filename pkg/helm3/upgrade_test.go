@@ -10,7 +10,7 @@ import (
 	"get.porter.sh/porter/pkg/test"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	yaml "gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v2"
 )
 
 type UpgradeTest struct {
@@ -121,7 +121,8 @@ func TestMixin_Upgrade(t *testing.T) {
 			},
 		},
 		{
-			expectedCommand: fmt.Sprintf(`%s %s %s %s %s`, baseUpgrade, baseValues, `--timeout 600 --debug`, baseAddFlags, baseSetArgs),
+			// --atomic should not be set when --debug is set
+			expectedCommand: fmt.Sprintf(`%s %s %s %s`, baseUpgrade, baseValues, `--timeout 600 --debug --create-namespace`, baseSetArgs),
 			upgradeStep: UpgradeStep{
 				UpgradeArguments: UpgradeArguments{
 					Step:      Step{Description: "Upgrade Foo"},
@@ -149,6 +150,7 @@ func TestMixin_Upgrade(t *testing.T) {
 			require.NoError(t, err)
 
 			h := NewTestMixin(t)
+			h.Debug = false // turn off debug so that we use the --atomic flag
 			h.In = bytes.NewReader(b)
 
 			err = h.Upgrade()

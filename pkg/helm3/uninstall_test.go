@@ -9,7 +9,7 @@ import (
 	"get.porter.sh/porter/pkg/test"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	yaml "gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v2"
 )
 
 type UninstallTest struct {
@@ -97,6 +97,7 @@ func TestMixin_Uninstall(t *testing.T) {
 			b, _ := yaml.Marshal(action)
 
 			h := NewTestMixin(t)
+			h.Debug = false // turn off debug so that we use the --atomic flag
 			h.In = bytes.NewReader(b)
 
 			err := h.Uninstall()

@@ -1,14 +1,15 @@
-mixins:
-- helm3:
-    clientVersion: v3.8.2
-    repositories:
-      stable:
-        url: "https://charts.helm.sh/stable"
-
+schemaVersion: 1.0.0-alpha.1
 name: helm3-mysql
-version: 0.1.0
+version: 0.2.0
 description: "An example bundle that install mysql"
-registry: getporter
+registry: localhost:5000
+
+mixins:
+  - helm3:
+      clientVersion: v3.9.0
+      repositories:
+        stable:
+          url: "https://charts.helm.sh/stable"
 
 credentials:
 - name: kubeconfig
@@ -59,11 +60,12 @@ install:
       description: "Install MySQL"
       name: "{{ bundle.parameters.mysql-name }}"
       chart: stable/mysql
-      version: 1.6.2
+      version: 9.1.0
       namespace: "{{ bundle.parameters.namespace }}"
       set:
         mysqlDatabase: "{{ bundle.parameters.database-name}}"
         mysqlUser: "{{ bundle.parameters.mysql-user }}"
+        image.registry: "farts"
       outputs:
       - name: mysql-root-password
         secret: "{{ bundle.parameters.mysql-name }}"
@@ -87,7 +89,7 @@ upgrade:
       name: "{{ bundle.parameters.mysql-name }}"
       namespace: "{{ bundle.parameters.namespace }}"
       chart: stable/mysql
-      version: 1.6.2
+      version: 9.1.0
       outputs:
       - name: mysql-root-password
         secret: "{{ bundle.parameters.mysql-name }}"

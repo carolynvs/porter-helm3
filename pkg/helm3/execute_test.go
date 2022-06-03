@@ -11,7 +11,7 @@ import (
 	"get.porter.sh/porter/pkg/test"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	yaml "gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v2"
 )
 
 func TestMixin_UnmarshalExecuteStep(t *testing.T) {
@@ -76,11 +76,12 @@ func TestMixin_UnmarshalExecuteLoginRegistryInsecureStep(t *testing.T) {
 
 	assert.Equal(t, "Login to OCI registry", step.Description)
 	assert.Equal(t, []string{"registry", "login", "localhost:5000", "--insecure"}, step.Arguments)
+
 	wantFlags := builder.Flags{
 		builder.Flag{Name: "p", Values: []string{"mypass"}},
 		builder.Flag{Name: "u", Values: []string{"myuser"}},
 	}
-
+	sort.Sort(step.Flags)
 	assert.EqualValues(t, wantFlags, step.Flags)
 }
 
@@ -131,6 +132,7 @@ func TestMixin_Execute(t *testing.T) {
 	os.Setenv(test.ExpectedCommandEnv, "helm3 status mysql -o yaml")
 
 	executeAction := Action{
+		Name: "install",
 		Steps: []ExecuteSteps{
 			{
 				ExecuteStep: ExecuteStep{

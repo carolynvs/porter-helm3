@@ -10,7 +10,7 @@ import (
 	"get.porter.sh/porter/pkg/test"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	yaml "gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v2"
 )
 
 type InstallTest struct {
@@ -139,7 +139,8 @@ func TestMixin_Install(t *testing.T) {
 			},
 		},
 		{
-			expectedCommand: fmt.Sprintf(`%s %s %s %s %s`, baseInstall, baseValues, `--timeout 600 --debug`, baseAddFlags, baseSetArgs),
+			// --atomic should not be set when --debug is set
+			expectedCommand: fmt.Sprintf(`%s %s %s %s`, baseInstall, baseValues, `--timeout 600 --debug --create-namespace`, baseSetArgs),
 			installStep: InstallStep{
 				InstallArguments: InstallArguments{
 					Step:      Step{Description: "Install Foo"},
@@ -165,6 +166,7 @@ func TestMixin_Install(t *testing.T) {
 			b, _ := yaml.Marshal(action)
 
 			h := NewTestMixin(t)
+			h.Debug = false // turn off debug so that we use the --atomic flag
 			h.In = bytes.NewReader(b)
 
 			err := h.Install()

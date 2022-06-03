@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
-	yaml "gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v2"
 )
 
 type UpgradeAction struct {
@@ -93,12 +93,16 @@ func (m *Mixin) Upgrade() error {
 		cmd.Args = append(cmd.Args, "--timeout", step.Timeout)
 	}
 
-	if step.Debug {
+	// Consider ourselves in debug mode if it's explicitly turned on in the
+	// porter.yaml, or porter is being run with --debug
+	if step.Debug || m.Debug {
 		cmd.Args = append(cmd.Args, "--debug")
+	} else {
+		// Atomic ensures that the helm deletes the release if the release is unsuccessful.
+		// We don't use --atomic when in debug mode so that someone can figure out why it's not working
+		cmd.Args = append(cmd.Args, "--atomic")
 	}
 
-	// This will upgrade process rolls back changes made in case of failed upgrade.
-	cmd.Args = append(cmd.Args, "--atomic")
 	// This will ensure the creation of the release namespace if not present.
 	cmd.Args = append(cmd.Args, "--create-namespace")
 

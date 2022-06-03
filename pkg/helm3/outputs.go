@@ -1,6 +1,7 @@
 package helm3
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"strings"
@@ -12,6 +13,8 @@ import (
 )
 
 func (m *Mixin) getSecret(client kubernetes.Interface, namespace, name, key string) ([]byte, error) {
+	ctx := context.Background()
+
 	if namespace == "" {
 		namespace = "default"
 	}
@@ -19,7 +22,7 @@ func (m *Mixin) getSecret(client kubernetes.Interface, namespace, name, key stri
 		fmt.Fprintf(os.Stderr, "Retrieving secret %s/%s and using key %s as an output\n", namespace, name, key)
 	}
 
-	secret, err := client.CoreV1().Secrets(namespace).Get(name, metav1.GetOptions{})
+	secret, err := client.CoreV1().Secrets(namespace).Get(ctx, name, metav1.GetOptions{})
 	if apierrors.IsNotFound(err) {
 		return nil, fmt.Errorf("error getting secret %s/%s: %s", namespace, name, err)
 	}
